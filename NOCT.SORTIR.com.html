@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NOCT.SORTIR</title>
+<style>
+:root{--bg:#f7f4ee;--surface:#fffdf9;--line:#e4dfd5;--ink:#4a4843;--mute:#9a968c;--cream:#efe6d2;--good:#cfe3d0;--good-ink:#4d6b50;--trash:#ead2cf;--trash-ink:#8a5550;--shadow:0 10px 30px rgba(120,110,90,.10);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2a2927;--surface:#33322f;--line:#45433f;--ink:#ece8df;--mute:#a09b90;--cream:#4a4538;--good:#3d5240;--good-ink:#cfe6d1;--trash:#59403d;--trash-ink:#f0d3cf;--shadow:0 10px 30px rgba(0,0,0,.3)}}
+:root[data-theme="dark"]{--bg:#2a2927;--surface:#33322f;--line:#45433f;--ink:#ece8df;--mute:#a09b90;--cream:#4a4538;--good:#3d5240;--good-ink:#cfe6d1;--trash:#59403d;--trash-ink:#f0d3cf;--shadow:0 10px 30px rgba(0,0,0,.3)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:"Inter","Helvetica Neue",Arial,sans-serif;display:flex;flex-direction:column}
+header{display:flex;justify-content:space-between;align-items:center;padding:22px 28px}
+.logo{font-weight:600;letter-spacing:.32em;font-size:13px}
+.logo span{color:var(--mute)}
+.stat{font-size:12px;color:var(--mute);letter-spacing:.12em}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:12px 20px 32px}
+.view{display:none;width:100%;max-width:720px;flex-direction:column;align-items:center;text-align:center}
+.view.on{display:flex}
+h1{font-weight:300;font-size:clamp(28px,6vw,44px);letter-spacing:.04em;margin:0 0 10px}
+p.sub{color:var(--mute);margin:0 0 34px;font-size:15px;line-height:1.6;max-width:420px}
+.drop{width:100%;max-width:460px;border:1.5px dashed var(--line);background:var(--surface);border-radius:28px;padding:54px 28px;cursor:pointer;transition:.2s}
+.drop:hover,.drop.over{background:var(--cream);border-color:var(--mute)}
+.drop .ic{font-size:30px;margin-bottom:12px;opacity:.7}
+.drop b{font-weight:500;display:block;margin-bottom:6px}
+.drop small{color:var(--mute)}
+.note{margin-top:22px;font-size:12px;color:var(--mute);max-width:380px;line-height:1.6}
+.stage{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);padding:14px;position:relative}
+.imgbox{height:min(58vh,520px);display:flex;align-items:center;justify-content:center;border-radius:18px;background:var(--cream);overflow:hidden;position:relative}
+.imgbox{touch-action:none}
+.imgbox img{max-width:100%;max-height:100%;object-fit:contain;transform:translate(var(--x,0px),var(--y,0px)) scale(var(--z,1));transition:opacity .25s;cursor:grab;user-select:none;-webkit-user-drag:none}
+.imgbox.drag img{cursor:grabbing}
+.imgbox img.go-good{transition:transform .25s,opacity .25s;transform:translate(calc(var(--x,0px) + 60px),var(--y,0px)) scale(var(--z,1)) rotate(3deg);opacity:0}
+.imgbox img.go-trash{transition:transform .25s,opacity .25s;transform:translate(calc(var(--x,0px) - 60px),var(--y,0px)) scale(var(--z,1)) rotate(-3deg);opacity:0}
+.zc,.pc{position:absolute;bottom:10px;display:flex;gap:2px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px;opacity:.94}
+.zc{right:10px}.pc{left:10px}
+.zc button,.pc button{padding:0;width:30px;height:30px;font-size:14px;letter-spacing:0;border-radius:50%;border:none;background:transparent}
+.zc button:hover,.pc button:hover{box-shadow:none;background:var(--cream);transform:none}
+.zc span{font-size:11px;color:var(--mute);min-width:42px;text-align:center}
+.hint{font-size:11px;color:var(--mute);width:100%;text-align:center;margin-top:2px}
+.meta{display:flex;justify-content:space-between;padding:12px 6px 2px;font-size:12px;color:var(--mute);gap:12px}
+.meta .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar{width:100%;height:3px;background:var(--line);border-radius:3px;margin:18px 0 22px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--mute);transition:width .3s}
+.actions{display:flex;gap:14px;justify-content:center;width:100%}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:14px 30px;font-size:14px;letter-spacing:.08em;transition:.18s}
+button:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+button:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-good{background:var(--good);color:var(--good-ink);border-color:transparent;flex:1;max-width:220px}
+.btn-trash{background:var(--trash);color:var(--trash-ink);border-color:transparent;flex:1;max-width:220px}
+.btn-sm{padding:10px 18px;font-size:12px}
+kbd{font-family:inherit;font-size:10px;opacity:.6;border:1px solid currentColor;border-radius:5px;padding:1px 5px;margin-left:8px}
+.tools{margin-top:18px;display:flex;gap:10px;align-items:center;color:var(--mute);font-size:12px;flex-wrap:wrap;justify-content:center}
+.sum{display:flex;gap:16px;margin:8px 0 30px}
+.sum div{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px 34px;min-width:130px}
+.sum strong{display:block;font-size:34px;font-weight:300}
+.sum span{font-size:11px;letter-spacing:.14em;color:var(--mute)}
+.row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.btn-main{background:var(--ink);color:var(--bg);border-color:transparent}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.pill{padding:7px 14px;font-size:11px;letter-spacing:.14em;border-radius:999px}
+.pill.low{background:var(--trash);color:var(--trash-ink);border-color:transparent}
+.pill.life{background:var(--good);color:var(--good-ink);border-color:transparent}
+.modal{position:fixed;inset:0;background:rgba(60,55,45,.38);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}
+.modal.on{display:flex}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);max-width:420px;width:100%;padding:34px 28px;text-align:center;max-height:92vh;overflow:auto}
+.card h2{font-weight:300;font-size:26px;margin:0 0 8px;letter-spacing:.03em}
+.card p{color:var(--mute);font-size:14px;line-height:1.6;margin:0 0 18px}
+.price{font-size:38px;font-weight:300;margin:6px 0 2px}
+.price small{display:block;font-size:11px;letter-spacing:.14em;color:var(--mute);margin-top:4px}
+.perks{list-style:none;padding:0;margin:18px 0 22px;font-size:13px;text-align:left;display:inline-block}
+.perks li{margin:7px 0}
+.perks li:before{content:"✓";color:var(--good-ink);margin-right:10px}
+.pay{background:var(--cream);border-radius:18px;padding:14px 16px;font-size:13px;line-height:1.6;margin-bottom:16px;display:none;text-align:left;white-space:pre-line}
+.pay.on{display:block}
+.lic{display:flex;gap:8px;margin-top:18px}
+.lic input{flex:1;min-width:0;font:inherit;font-size:13px;padding:11px 16px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);outline:none;letter-spacing:.06em;text-transform:uppercase}
+@media (max-width:480px){.actions{gap:10px}button{padding:14px 18px}.sum div{padding:18px 22px;min-width:110px}kbd{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">NOCT<span>.SORTIR</span></div>
+  <div style="display:flex;gap:14px;align-items:center"><div class="stat" id="stat"></div><button class="pill" id="credit" title="1 credit = 1 foto yang disortir"></button></div>
+</header>
+<main>
+  <section class="view on" id="v-start">
+    <h1>Pilih, bukan menumpuk.</h1>
+    <p class="sub">Masukkan satu folder foto, lalu putuskan satu per satu: layak atau dibuang.</p>
+    <label class="drop" id="drop">
+      <div class="ic">◌</div>
+      <b>Pilih folder foto</b>
+      <small>klik di sini untuk memilih folder</small>
+      <input type="file" id="pick" webkitdirectory directory multiple hidden>
+    </label>
+    <p class="note">Gratis 20 credit, 1 credit untuk setiap foto yang disortir. Semua proses berjalan di perangkatmu. Foto asli tidak diubah atau dihapus; foto yang kamu tandai Good akan disalin ke folder baru.</p>
+  </section>
+
+  <section class="view" id="v-sort">
+    <div class="stage">
+      <div class="imgbox" id="box"><img id="img" alt="" draggable="false">
+        <div class="pc" id="pc"><button data-p="l" title="Geser kiri">◀</button><button data-p="u" title="Geser atas">▲</button><button data-p="d" title="Geser bawah">▼</button><button data-p="r" title="Geser kanan">▶</button></div>
+        <div class="zc" id="zc"><button id="zo" title="Zoom out (-)">−</button><span id="zp">100%</span><button id="zi" title="Zoom in (+)">+</button><button id="zr" title="Reset (0)">⟲</button></div>
+      </div>
+      <div class="meta"><span class="name" id="name"></span><span id="pos"></span></div>
+    </div>
+    <div class="bar"><i id="prog"></i></div>
+    <div class="actions">
+      <button class="btn-trash" id="bt">Trash<kbd>←</kbd></button>
+      <button class="btn-good" id="bg">Good<kbd>→</kbd></button>
+    </div>
+    <div class="tools">
+      <button class="btn-sm" id="undo">↶ Urungkan</button>
+      <button class="btn-sm" id="finish">Selesai &amp; simpan</button>
+      <div class="hint">Scroll mouse untuk zoom · seret foto untuk menggeser · klik dua kali untuk memperbesar</div>
+    </div>
+  </section>
+
+  <section class="view" id="v-end">
+    <h1>Selesai disortir.</h1>
+    <p class="sub">Foto yang layak siap disimpan ke folder baru.</p>
+    <div class="sum">
+      <div><strong id="sg">0</strong><span>GOOD</span></div>
+      <div><strong id="st">0</strong><span>TRASH</span></div>
+    </div>
+    <div class="row">
+      <button class="btn-main" id="zip">Simpan Good sebagai ZIP</button>
+      <button id="dir" style="display:none">Simpan ke folder</button>
+      <button id="back">← Kembali</button>
+      <button id="again">Mulai lagi</button>
+    </div>
+    <p class="note" id="endnote"></p>
+  </section>
+</main>
+<div class="modal" id="modal"><div class="card">
+  <h2 id="mt">Credit habis</h2>
+  <p id="ms"></p>
+  <div class="price">Rp150.000<small>SEKALI BAYAR · LIFETIME</small></div>
+  <ul class="perks"><li>Sortir foto tanpa batas</li><li>Akses lifetime, tanpa tagihan bulanan</li><li>Semua pembaruan berikutnya</li></ul>
+  <div class="pay" id="pay"></div>
+  <div class="row"><button class="btn-main" id="buy">Beli akses lifetime</button><button id="later">Nanti</button></div>
+  <div class="lic"><input id="lic" placeholder="Kode lisensi" autocomplete="off" spellcheck="false"><button class="btn-sm" id="act">Aktifkan</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var files=[],idx=0,dec=[],url=null,busy=false;
+  var views=['v-start','v-sort','v-end'];
+  function show(id){views.forEach(function(v){$(v).classList.toggle('on',v===id)})}
+  function toast(m){var t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(function(){t.classList.remove('on')},2800)}
+  function count(v){return dec.filter(function(d){return d===v}).length}
+  function upd(){
+    $('stat').textContent=files.length?('GOOD '+count('g')+'  ·  TRASH '+count('t')):'';
+    $('prog').style.width=files.length?(idx/files.length*100)+'%':'0';
+  }
+  function render(){
+    if(idx>=files.length){return end()}
+    if(url)URL.revokeObjectURL(url);
+    url=URL.createObjectURL(files[idx]);
+    var im=$('img');im.className='';resetView();im.src=url;
+    $('name').textContent=files[idx].name;
+    $('pos').textContent=(idx+1)+' / '+files.length;
+    $('undo').disabled=idx===0;
+    upd();
+  }
+  function end(){
+    $('sg').textContent=count('g');$('st').textContent=count('t');
+    var left=files.length-idx;
+    $('endnote').textContent=left>0?(left+' foto belum disortir dan tidak ikut disimpan.'):'';
+    $('zip').disabled=$('dir').disabled=count('g')===0;
+    $('dir').style.display=window.showDirectoryPicker?'':'none';
+    upd();show('v-end');
+  }
+  function choose(v){
+    if(busy||idx>=files.length)return;
+    if(!spend())return;
+    busy=true;
+    $('img').className=v==='g'?'go-good':'go-trash';
+    setTimeout(function(){dec[idx]=v;idx++;busy=false;render()},180);
+  }
+  function load(list){
+    var imgs=Array.prototype.filter.call(list,function(f){return /^image\//.test(f.type)||/\.(jpe?g|png|gif|webp|bmp|avif|heic)$/i.test(f.name)});
+    if(!imgs.length){toast('Tidak ada foto di folder itu');return}
+    imgs.sort(function(a,b){return a.name.localeCompare(b.name,undefined,{numeric:true})});
+    files=imgs;dec=[];idx=0;show('v-sort');render();
+    if(!life&&credits<=0)openPay();
+  }
+  $('pick').addEventListener('change',function(e){load(e.target.files);e.target.value=''});
+  $('bg').onclick=function(){choose('g')};
+  $('bt').onclick=function(){choose('t')};
+  $('undo').onclick=function(){if(idx>0&&!busy){refund();idx--;dec[idx]=null;dec.length=idx;render()}};
+  $('finish').onclick=end;
+  $('back').onclick=function(){if(idx<files.length){show('v-sort');render()}else if(files.length){refund();idx=files.length-1;dec.length=idx;show('v-sort');render()}};
+  $('again').onclick=function(){files=[];dec=[];idx=0;upd();show('v-start')};
+  document.addEventListener('keydown',function(e){
+    if(!$('v-sort').classList.contains('on')||$('modal').classList.contains('on'))return;
+    var k=e.key.toLowerCase();
+    if(k==='arrowright'||k==='g'){choose('g')}
+    else if(k==='arrowleft'||k==='t'){choose('t')}
+    else if(k==='z'||k==='backspace'){$('undo').click()}
+    else if(k==='+'||k==='='){zoomBy(1.25)}
+    else if(k==='-'){zoomBy(1/1.25)}
+    else if(k==='0'){resetView()}
+  });
+  function goods(){return files.filter(function(f,i){return dec[i]==='g'})}
+  $('zip').onclick=async function(){
+    var g=goods();if(!g.length)return;
+    if(!window.JSZip){toast('Library ZIP gagal dimuat');return}
+    var b=$('zip'),old=b.textContent;b.disabled=true;b.textContent='Menyiapkan…';
+    try{
+      var z=new JSZip(),d=z.folder('NOCT.SORTIR_good');
+      g.forEach(function(f){d.file(f.name,f)});
+      var blob=await z.generateAsync({type:'blob',compression:'STORE'});
+      var dl=null;
+      try{dl=window.claude&&await claude.use('downloads')}catch(e){}
+      if(dl){await dl.save({filename:'NOCT.SORTIR_good.zip',data:blob});toast('ZIP disimpan')}
+      else{var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='NOCT.SORTIR_good.zip';document.body.appendChild(a);a.click();a.remove();toast('ZIP diunduh')}
+    }catch(e){if(!e||e.code!=='declined')toast('Gagal menyimpan ZIP')}
+    b.textContent=old;b.disabled=false;
+  };
+  $('dir').onclick=async function(){
+    var g=goods();if(!g.length)return;
+    try{
+      var root=await window.showDirectoryPicker({mode:'readwrite'});
+      var out=await root.getDirectoryHandle('NOCT.SORTIR_good',{create:true});
+      for(var i=0;i<g.length;i++){
+        var h=await out.getFileHandle(g[i].name,{create:true});
+        var w=await h.createWritable();await w.write(g[i]);await w.close();
+      }
+      toast(g.length+' foto disalin ke folder NOCT.SORTIR_good');
+    }catch(e){
+      if(e&&e.name==='AbortError')return;
+      toast('Browser memblokir akses folder, gunakan opsi ZIP');
+    }
+  };
+  var Z=1,X=0,Y=0,box=$('box'),im2=$('img');
+  function clampPan(){
+    var r=box.getBoundingClientRect(),lx=Math.max(0,(im2.offsetWidth*Z-r.width)/2+60),ly=Math.max(0,(im2.offsetHeight*Z-r.height)/2+60);
+    X=Math.max(-lx,Math.min(lx,X));Y=Math.max(-ly,Math.min(ly,Y));
+  }
+  function applyView(){
+    if(Z<=1.001){X=0;Y=0}else clampPan();
+    im2.style.setProperty('--z',Z);im2.style.setProperty('--x',X+'px');im2.style.setProperty('--y',Y+'px');
+    $('zp').textContent=Math.round(Z*100)+'%';
+  }
+  function resetView(){Z=1;X=0;Y=0;applyView()}
+  function zoomAt(f,cx,cy){
+    var nz=Math.max(1,Math.min(10,Z*f));if(nz===Z)return;
+    var k=nz/Z;X=cx-(cx-X)*k;Y=cy-(cy-Y)*k;Z=nz;applyView();
+  }
+  function zoomBy(f){zoomAt(f,0,0)}
+  function rel(e){var r=box.getBoundingClientRect();return[e.clientX-r.left-r.width/2,e.clientY-r.top-r.height/2]}
+  box.addEventListener('wheel',function(e){
+    e.preventDefault();var p=rel(e);zoomAt(e.deltaY<0?1.15:1/1.15,p[0],p[1]);
+  },{passive:false});
+  var dr=null;
+  box.addEventListener('pointerdown',function(e){
+    if(e.target.closest('.zc,.pc')||Z<=1)return;
+    dr={x:e.clientX,y:e.clientY,ox:X,oy:Y};box.classList.add('drag');box.setPointerCapture(e.pointerId);
+  });
+  box.addEventListener('pointermove',function(e){
+    if(!dr)return;X=dr.ox+e.clientX-dr.x;Y=dr.oy+e.clientY-dr.y;applyView();
+  });
+  function endDrag(){dr=null;box.classList.remove('drag')}
+  box.addEventListener('pointerup',endDrag);box.addEventListener('pointercancel',endDrag);
+  box.addEventListener('dblclick',function(e){
+    if(e.target.closest('.zc,.pc'))return;
+    if(Z>1)resetView();else{var p=rel(e);zoomAt(2.5,p[0],p[1])}
+  });
+  $('zi').onclick=function(){zoomBy(1.4)};
+  $('zo').onclick=function(){zoomBy(1/1.4)};
+  $('zr').onclick=resetView;
+  $('pc').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    if(Z<=1){zoomBy(1.4)}
+    var s=80,d=b.dataset.p;
+    if(d==='l')X+=s;if(d==='r')X-=s;if(d==='u')Y+=s;if(d==='d')Y-=s;
+    applyView();
+  });
+  /* ===== Konfigurasi credit & pembayaran ===== */
+  var CFG={
+    free:20,
+    storeKey:'noct_sortir_v1',
+    payUrl:'', /* isi dengan link pembayaran (Midtrans/Xendit/Trakteer/dll) */
+    payInfo:'Transfer Rp150.000 ke: [isi rekening / QRIS kamu di sini]\nKirim bukti bayar ke: [isi kontak kamu]\nKamu akan menerima kode lisensi untuk diaktifkan di bawah.',
+    hashes:['a6b2316430cebc02b87a08cf0237e4879c3f496514ca284dce9e0ef4542892fd'] /* SHA-256 dari kode lisensi yang valid */
+  };
+  var credits=CFG.free,life=false;
+  try{var sv=JSON.parse(localStorage.getItem(CFG.storeKey)||'null');if(sv){credits=Math.max(0,Math.min(CFG.free,+sv.c||0));life=!!sv.l}}catch(e){}
+  function persist(){try{localStorage.setItem(CFG.storeKey,JSON.stringify({c:credits,l:life}))}catch(e){}}
+  function updCredit(){
+    var p=$('credit');
+    p.textContent=life?'LIFETIME ∞':credits+' CREDIT';
+    p.className='pill'+(life?' life':(credits<=3?' low':''));
+  }
+  function spend(){
+    if(life)return true;
+    if(credits<=0){openPay();return false}
+    credits--;persist();updCredit();
+    if(credits===0)toast('Credit terakhir terpakai');
+    return true;
+  }
+  function refund(){if(!life&&credits<CFG.free){credits++;persist();updCredit()}}
+  function openPay(){
+    $('mt').textContent=credits<=0?'Credit habis':'Sisa '+credits+' credit';
+    $('ms').textContent=credits<=0?'Kamu sudah memakai '+CFG.free+' credit gratis. Buka akses lifetime untuk lanjut menyortir tanpa batas.':'1 credit dipakai untuk setiap foto yang disortir. Buka akses lifetime agar tidak perlu menghitung lagi.';
+    $('pay').classList.remove('on');
+    $('modal').classList.add('on');
+  }
+  function closePay(){$('modal').classList.remove('on')}
+  async function sha(s){var b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.prototype.map.call(new Uint8Array(b),function(x){return x.toString(16).padStart(2,'0')}).join('')}
+  $('credit').onclick=function(){if(life)toast('Akses lifetime sudah aktif');else openPay()};
+  $('later').onclick=closePay;
+  $('modal').addEventListener('click',function(e){if(e.target===$('modal'))closePay()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closePay()});
+  $('buy').onclick=function(){
+    var p=$('pay');p.textContent=CFG.payInfo;p.classList.add('on');
+    if(CFG.payUrl){try{window.open(CFG.payUrl,'_blank','noopener')}catch(e){}}
+  };
+  $('act').onclick=async function(){
+    var c=$('lic').value.trim().toUpperCase();
+    if(!c){toast('Masukkan kode lisensi');return}
+    if(!(window.crypto&&crypto.subtle)){toast('Browser tidak mendukung verifikasi kode');return}
+    var h=await sha(c);
+    if(CFG.hashes.indexOf(h)>-1){life=true;persist();updCredit();closePay();$('lic').value='';toast('Akses lifetime aktif. Terima kasih!')}
+    else toast('Kode lisensi tidak valid');
+  };
+  updCredit();
+  var drop=$('drop');
+  ['dragover','dragenter'].forEach(function(n){drop.addEventListener(n,function(e){e.preventDefault();drop.classList.add('over')})});
+  ['dragleave','drop'].forEach(function(n){drop.addEventListener(n,function(e){e.preventDefault();drop.classList.remove('over')})});
+  drop.addEventListener('drop',function(e){
+    var items=e.dataTransfer&&e.dataTransfer.items;
+    if(!items||!items[0]||!items[0].webkitGetAsEntry){return}
+    var out=[];
+    function walk(en){return new Promise(function(res){
+      if(en.isFile){en.file(function(f){out.push(f);res()},function(){res()})}
+      else if(en.isDirectory){
+        var r=en.createReader(),all=[];
+        (function rd(){r.readEntries(function(es){
+          if(!es.length){Promise.all(all.map(walk)).then(res);return}
+          all=all.concat(es);rd();
+        },function(){res()})})();
+      }else res();
+    })}
+    var ens=[];for(var i=0;i<items.length;i++){var en=items[i].webkitGetAsEntry();if(en)ens.push(en)}
+    Promise.all(ens.map(walk)).then(function(){load(out)});
+  });
+})();
+</script>
+</body>
+</html>
